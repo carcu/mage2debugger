@@ -168,10 +168,10 @@ class Template
     ) {
         $html = $proceed($fileName);
 
-        if (class_exists('\SalesIgniter\Debugger\Helper\Data')) {
+        /*if (class_exists('\SalesIgniter\Debugger\Helper\Data')) {
             $myDebugger = \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data');
             $myDebugger->addData($subject->getNameInLayout(), 'template');
-        }
+        }*/
         if ($this->isPaymentResponse()) {
             return $html;
         }

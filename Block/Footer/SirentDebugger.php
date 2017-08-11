@@ -16,8 +16,4 @@ class SirentDebugger extends \Magento\Framework\View\Element\Template
         );
     }
 
-    public function getDebuggerData()
-    {
-        return \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data')->getDataAsHtml();
-    }
 }

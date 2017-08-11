@@ -1,10 +1,123 @@
 <?php /** @var $block \SalesIgniter\Debugger\Block\Footer\SirentDebugger */ ?>
 <script>
-    require(["jquery", "sirentdebug"], function ($) {
+    require(["jquery"], function ($) {
+        //if the call to ajax is done iin a non magento context meaning without requirejs than ajaxPrefilter won't work
+        //for this probably I will need to setup
+        $.ajaxSetup({
+            dataFilter: function (data, type) {
+                if (type == 'json') {
+                    try {
+                        var data = JSON.parse(data);
+                        var placeKey = false;
+                        for (var i = 0; i < data.length; i++) {
+                            if (data[i]['debuggerData'] && data[i]['debuggerData'].length) {
+                                placeKey = i;
+                                break;
+                            }
+                        }
+                        if (placeKey) {
+                            $('body').data('debuggerData', data[placeKey]['debuggerData'])
+                            data.splice(placeKey);
+                        } else if (data['debuggerData']) {
+                            $('body').data('debuggerData', data['debuggerData'])
+                            delete data['debuggerData'];
+                        }
+                        //return data;
+                        return JSON.stringify(data);
+                    } catch (e) {
+                        return data;
+                    }
+                }
+            }
+        });
+        $.ajaxPrefilter(/*dataTypes, */ function global_ajaxPrefilter(options, originalOptions, jqXHR) {
 
-    });
+            jqXHR.done(function global_ajaxSuccess(data, textStatus, jqXHR) {
+                //console.groupCollapsed(options.url + (options.data ? '&' + $.param(options.data) : ''));
+                //console.log("Options: " + JSON.stringify(options));
+                //console.log("Data: " + JSON.stringify(data));
+                //console.groupEnd();
+                var debuggerHtml = false;
+                if ($('body').data('debuggerData')) {
+                    debuggerHtml = $('body').data('debuggerData');
+                }
+                if (debuggerHtml !== false) {
+                    try {
+                        $('.debuggerAccordion').accordion('destroy');
+                    }
+                    catch (e) {
+                        console.log(e);
+                    }
+                    try {
+                        $('#debuggerPanel').html(debuggerHtml);
+
+                        $('.debuggerAccordion').accordion({
+                            heightStyle: 'fill',
+                            classes: {
+                                "ui-accordion": "debuggerAccordion"
+                            }
+                        });
+                        $('.debuggerAccordionsSub').accordion({
+                            heightStyle: 'content',
+                            classes: {
+                                "ui-accordion": "debuggerAccordion"
+                            }
+                        });
+                        $('#dialogN').dialog("option", "position", {
+                            my: "right bottom",
+                            at: "right bottom",
+                            of: window
+                        });
+                    } catch (e) {
+                        console.log(e);
+                    }
+                }
+            });
+            jqXHR.fail(function global_ajaxError(jqXHR, textStatus, errorThrown) {
+                if (jqXHR.responseText.indexOf('Whoops! There was an error.') > 0) {
+                    //$('#sirentdiv').data('htmldata', jqXHR.responseText);
+                    var errorArray = jqXHR.responseText.split(';;;');
+                    //$('#sirenta').trigger('click');
+                    if (errorArray[1]) {
+                        $('body').trigger('processStop');
+                        //console.log(errorArray[1]);
+                        var iframe = $('<iframe frameborder="0" marginwidth="0" marginheight="0" allowfullscreen></iframe>');
+                        var src = errorArray[1];
+                        var title = 'Error';
+                        var width = 1024;//$(window).width();
+                        var height = 800;//$(window).height();
+                        iframe.attr({
+                            width: +width,
+                            height: +height,
+                            src: src
+                        });
+
+                        var dialog = $("<div></div>").append(iframe).appendTo("body").dialog({
+                            autoOpen: false,
+                            modal: false,
+                            resizable: true,
+                            dialogClass: 'debuggerdialog',//
+                            width: width,
+                            height: height,
+                            close: function () {
+                                $(this).dialog('destroy');
+                                iframe.attr("src", "");
+                            }
+                        });
+
+
+                        dialog.dialog("option", "title", title).dialog("open");
+                        //var wi = window.open(errorArray[1], '_blank');
+                        //wi.location.href = errorArray[1];
+                    }
+                    //wi.document.writeln($('#sirentdiv').data('htmldata'));
+                }
+
+            });
+        });
+    })
+    ;
 </script>
-
 <!--<script type="text/x-magento-init">
 {
     "body": {

@@ -48,6 +48,16 @@ class Template
         return strpos($this->request->getFullActionName(), '_response') !== false;
     }
 
+    private function removeHtmlTags($html)
+    {
+        //$html = preg_replace("/<html[^>]+\>/i", '', $html);
+        $html = str_replace('<html>', '', $html);
+        $html = str_replace('</html>', '', $html);
+        // $html = str_replace('<!DOCTYPE html>', '', $html);
+        // $html = str_replace('<br></br>', '<br />', $html);
+        return $html;
+    }
+
     /**
      * Function which add the pricing blocks and styles
      *
@@ -59,7 +69,27 @@ class Template
     {
         /** @var \SalesIgniter\Debugger\Block\Footer\SirentDebugger $block */
         $block = $this->layout->createBlock('\SalesIgniter\Debugger\Block\Footer\SirentDebugger');
-        $dom->append($block->toHtml());
+        $html = $block->toHtml();
+        $html = html5qp($html);
+        //$html = $this->removeHtmlTags($html->html());
+        $dom->append($html);
+    }
+
+    /**
+     * Function which add the pricing blocks and styles
+     *
+     * @param \QueryPath\DOMQuery $dom
+     *
+     * @return string
+     */
+    private function _addSirentDebuggerFooter(&$dom)
+    {
+        /** @var \SalesIgniter\Debugger\Block\Footer\SirentDebugger $block */
+        $block = $this->layout->createBlock('\SalesIgniter\Debugger\Block\Footer\SirentDebuggerFooter');
+        //$html = $this->removeHtmlTags($block->toHtml());
+        $html = $block->toHtml();
+        $html = html5qp($html);
+        $dom->append($html);
     }
 
     /**
@@ -104,10 +134,15 @@ class Template
      *
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    private function addPricingAndStylesheets($subject, &$domHtml, &$isChanged)
+    private function _addDebuggerAssets($subject, &$domHtml, &$isChanged)
     {
-        if ($subject->getNameInLayout() === 'absolute_footer') {
+        if ($subject->getNameInLayout() === 'head.components' /*|| $subject->getNameInLayout() === 'copyright'*/) {
             $this->_addSirentDebugger($domHtml);
+            //$this->_appendFrontendGeneralStyles($domHtml);
+            $isChanged = true;
+        }
+        if ($subject->getNameInLayout() === 'copyright' /*|| $subject->getNameInLayout() === 'copyright'*/) {
+            $this->_addSirentDebuggerFooter($domHtml);
             //$this->_appendFrontendGeneralStyles($domHtml);
             $isChanged = true;
         }
@@ -132,16 +167,29 @@ class Template
         $fileName
     ) {
         $html = $proceed($fileName);
+
+        if (class_exists('\SalesIgniter\Debugger\Helper\Data')) {
+            $myDebugger = \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data');
+            $myDebugger->addData($subject->getNameInLayout(), 'template');
+        }
         if ($this->isPaymentResponse()) {
             return $html;
         }
         $domHtml = html5qp('<div>' . $html . '</div>');
         $isChanged = false;
+        if (class_exists('\SalesIgniter\Debugger\Helper\Data') && \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data')->isEnabled()) {
+            $originalHtml = $html;
+            $originalHtml5 = $domHtml->html();
+            $originalHtml5 = substr($originalHtml5, 0, strlen($originalHtml5) - 8);
 
-        $this->addPricingAndStylesheets($subject, $domHtml, $isChanged);
-        \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data')->addData($subject->getNameInLayout(), 'template');
+            $this->_addDebuggerAssets($subject, $domHtml, $isChanged);
+        }
         if ($isChanged) {
-            return $domHtml->html();
+            $htmlString = $domHtml->html();
+            $htmlString = substr($htmlString, 0, strlen($htmlString) - 8);
+            $htmlString = str_replace($originalHtml5, '', $htmlString);
+            return $originalHtml . $this->removeHtmlTags($htmlString);
+            // return substr($htmlString, 5, strlen($htmlString) - 11);
         } else {
             return $html;
         }

@@ -18,6 +18,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      * @var \Magento\Store\Model\StoreManagerInterface
      */
     private $storeManager;
+    /**
+     * @var \Magento\Backend\Model\Session
+     */
+    private $backendSession;
+    /**
+     * @var \Magento\Framework\App\State
+     */
+    private $appState;
+
+    private $isEnabled;
 
     /**
      * Data constructor.
@@ -25,6 +35,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      * @param \Magento\Framework\App\Helper\Context      $context
      * @param \Magento\Backend\App\ConfigInterface       $backendConfig
      * @param \Magento\Catalog\Model\Session             $catalogSession
+     * @param \Magento\Backend\Model\Session             $backendSession
+     * @param \Magento\Framework\App\State               $appState
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      * @param \Magento\Framework\Filesystem              $filesystem
      */
@@ -32,6 +44,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Framework\App\Helper\Context $context,
         \Magento\Backend\App\ConfigInterface $backendConfig,
         \Magento\Catalog\Model\Session $catalogSession,
+        \Magento\Backend\Model\Session $backendSession,
+        \Magento\Framework\App\State $appState,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Framework\Filesystem $filesystem
     ) {
@@ -39,6 +53,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         parent::__construct($context);
         $this->catalogSession = $catalogSession;
         $this->storeManager = $storeManager;
+        $this->backendSession = $backendSession;
+        $this->appState = $appState;
+        $this->isEnabled = true;
     }
 
     public function dfFileWrite($directory, $relativeFileName, $contents)
@@ -64,7 +81,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $this->storeManager->getStore()->getBaseUrl() . $filesystem->getUri($directory) . '/' . $relativeFileName;
     }
 
-    public static function printRLevel($data, $level = 5)
+    public function isEnabled()
+    {
+        return $this->isEnabled;
+    }
+
+    private static function printRLevel($data, $level = 5)
     {
         static $innerLevel = 1;
         static $tabLevel = 1;
@@ -123,55 +145,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $output;
     }
 
-    public function var2console($var, $name = '', $now = false)
-    {
-        return self::printRLevel($var);
-        /* if (strlen($name)) {
-             $this->str2console("$type $name = " . $this->printRLevel($var) . ';', $now);
-         } else {
-             $this->str2console("$type = " . $this->printRLevel($var) . ';', $now);
-         }*/
-    }
-
-    public static function toConsole($var)
-    {
-        if ($var === null) {
-            $type = 'NULL';
-        } elseif (is_bool($var)) {
-            $type = 'BOOL';
-        } elseif (is_string($var)) {
-            $type = 'STRING[' . strlen($var) . ']';
-        } elseif (is_int($var)) {
-            $type = 'INT';
-        } elseif (is_float($var)) {
-            $type = 'FLOAT';
-        } elseif (is_array($var)) {
-            $type = 'ARRAY[' . count($var) . ']';
-        } elseif (is_object($var)) {
-            $type = 'OBJECT';
-        } elseif (is_resource($var)) {
-            $type = 'RESOURCE';
-        } else {
-            $type = '???';
-        }
-        $str = "$type = " . self::printRLevel($var) . ';';
-        $string = "<script type='text/javascript'>\n";
-        $string .= "//<![CDATA[\n";
-        $string .= "console.log(" . json_encode($str) . ");\n";
-        $string .= "//]]>\n";
-        $string .= "</script>";
-        return $string;
-    }
-
-    public function str2console($str, $now = false)
-    {
-        if ($now) {
-            return $str;
-        } else {
-            return self::toConsole($str);
-        }
-    }
-
     /**
      * Finds the location where dump was called.
      *
@@ -209,52 +182,84 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
     }
 
+    /**
+     * Returns true if current scope is backend
+     *
+     * @return bool
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function isBackend()
+    {
+        return ($this->appState->getAreaCode() === 'adminhtml');
+    }
+
+    private function getSession()
+    {
+        if ($this->isBackend()) {
+            return $this->backendSession;
+        }
+        return $this->catalogSession;
+    }
+
     public function addData($var, $context = null)
     {
-        //$result = $this->var2console($var, true);
-        $debuggerData = [];
-        if ($this->catalogSession->getDebuggerData()) {
-            $debuggerData = unserialize($this->catalogSession->getDebuggerData());
-        }
+        if ($this->isEnabled()) {
+            $debuggerData = [];
+            if ($this->getSession()->getDebuggerData()) {
+                $debuggerData = unserialize($this->getSession()->getDebuggerData());
+            }
 
-        list($file, $line, $code) = $this->findLocation();
-        if ($context === null) {
-            $context = 'Debug: ' . count($debuggerData) . ' File: ' . $file;
+            list($file, $line, $code) = $this->findLocation();
+            if ($context === null) {
+                $context = 'Debug: ' . count($debuggerData) . ' File: ' . $file;
+            }
+            $templateHelper = new \Whoops\Util\TemplateHelper();
+            $debuggerData[$context][] = $templateHelper->dump($var);
+            $this->getSession()->setDebuggerData(serialize($debuggerData));
         }
-        $templateHelper = new \Whoops\Util\TemplateHelper();
-        $debuggerData[$context][] = $templateHelper->dump($var);
-        $this->catalogSession->setDebuggerData(serialize($debuggerData));
+    }
+
+    public function pDump($var)
+    {
+        if ($this->isEnabled()) {
+            $_GET['pData'] = $var;
+            throw new \ErrorException('some error');
+        }
     }
 
     public function getDataAsHtml()
     {
-        if ($this->catalogSession->getDebuggerData()) {
-            $debuggerData = unserialize($this->catalogSession->getDebuggerData());
+        if ($this->isEnabled()) {
+            if ($this->getSession()->getDebuggerData()) {
+                $debuggerData = unserialize($this->getSession()->getDebuggerData());
 
-            $html = '';
-            foreach ($debuggerData as $context => $content) {
-                //array_reverse($content);
-                $html .= '<h3>' . $context . '</h3>';
-                if (count($content) > 1) {
-                    $html .= '<div class="debuggerAccordionsSub">';
-                }
-                foreach ($content as $count => $value) {
+                $html = '';
+                foreach ($debuggerData as $context => $content) {
+                    //array_reverse($content);
+                    $html .= '<h3>' . $context . '</h3>';
                     if (count($content) > 1) {
-                        $html .= '<h3>Debug: ' . $count . '</h3>';
+                        $html .= '<div class="debuggerAccordionsSub">';
                     }
-                    $html .= '<div>' . $value . '</div>';
+                    foreach ($content as $count => $value) {
+                        if (count($content) > 1) {
+                            $html .= '<h3>Debug: ' . $count . '</h3>';
+                        }
+                        $html .= '<div>' . $value . '</div>';
+                    }
+                    if (count($content) > 1) {
+                        $html .= '</div>';
+                    }
                 }
-                if (count($content) > 1) {
-                    $html .= '</div>';
-                }
+                return $html;
             }
-            return $html;
         }
         return '';
     }
 
     public function resetData()
     {
-        $this->catalogSession->unsDebuggerData();
+        if ($this->isEnabled()) {
+            $this->getSession()->unsDebuggerData();
+        }
     }
 }

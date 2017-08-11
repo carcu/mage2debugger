@@ -7,14 +7,15 @@
     <type name="Magento\Framework\Controller\Result\Json">
         <plugin name="salesigniter_debugger_magento_framework_controller_result_json" type="SalesIgniter\Debugger\Plugin\Magento\Framework\Controller\Result\Json"/>
     </type>
-    <type name="Magento\Framework\App\ResponseInterface">
-        <plugin name="sirentResponse" type="SalesIgniter\Debugger\Framework\ResponsePlugin" sortOrder="99"/>
+    <type name="Magento\Framework\App\FrontController">
+        <plugin name="salesigniter_debugger_magento_framework_app_frontcontroller" type="SalesIgniter\Debugger\Plugin\Magento\Framework\App\FrontController"/>
     </type>
     <!--<type name="Magento\Framework\Session\SessionManager">
                 <plugin name="sirentSession" type="SalesIgniter\Debugger\Plugin\SessionPlugin" sortOrder="98"/>
         </type>-->
     <!--<preference for="Whoops\Handler\HandlerInterface" type="Whoops\Handler\PrettyPageHandler"/>-->
-    <!--<type name="Magento\Framework\App\Http">
+    <!-- http plugin does not work, seems plugin are instantiated after
+    <type name="Magento\Framework\App\Http">
                                 <plugin name="sirentHttpPlugin" type="SalesIgniter\Debugger\Plugin\HttpApp" sortOrder="98"/>
                 </type>-->
     <!--<type name="Magento\Framework\Session\SessionManager">
@@ -27,7 +28,13 @@
     <!--<type name="Magento\Framework\App\ResponseInterface">
                 <plugin name="sirentResponse" type="SalesIgniter\Debugger\Framework\ResponsePlugin" sortOrder="99"/>
         </type>-->
-    <type name="Magento\Framework\App\FrontController">
-        <plugin name="salesigniter_debugger_magento_framework_app_frontcontroller" type="SalesIgniter\Debugger\Plugin\Magento\Framework\App\FrontController"/>
-    </type>
+    <!--
+     <type name="Magento\Framework\App\ResponseInterface">
+        <plugin name="sirentResponse" type="SalesIgniter\Debugger\Framework\ResponsePlugin" sortOrder="99"/>
+    </type>-->
+    <!--for events.xml in case sometime I will need
+    <event name="controller_front_send_response_before">
+        <observer name="salesigniter_controller_front_send_response_before" instance="SalesIgniter\Debugger\Observer\ObserverHttp"/>
+    </event>-->
+
 </config>

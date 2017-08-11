@@ -11,14 +11,12 @@ class Http extends \Magento\Framework\App\Http
      * @var \Whoops\Run
      */
     private $run;
-    private $currentError = '';
 
     public function onShutdown()
     {
         $lasterror = error_get_last();
         if (in_array($lasterror['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR, E_RECOVERABLE_ERROR, E_CORE_WARNING, E_COMPILE_WARNING, E_PARSE])) {
             $this->writeToLogFile(new \ErrorException($lasterror['message'], $lasterror['type'], 1, $lasterror['file'], $lasterror['line']));
-            //$this->run->handleException(new \RuntimeException($message));
         }
     }
 
@@ -27,15 +25,12 @@ class Http extends \Magento\Framework\App\Http
         register_shutdown_function([&$this, 'onShutdown']);
 
         $this->run = new \Whoops\Run();
-
-        //$handler = new \Whoops\Handler\PlainTextHandler;
-        //$handler->setTraceFunctionArgsOutputLimit(64);
         $handler = new \Whoops\Handler\PrettyPageHandler();
         $handler->setEditor(function ($file, $line) {
             return "editor://open/?file=%file&line=%line";
         });
         $this->run->pushHandler($handler);
-        //if (\Whoops\Util\Misc::isAjaxRequest()) {
+
         /*$areaCode = $this->_areaList->getCodeByFrontName($this->_request->getFrontName());
         $this->_state->setAreaCode($areaCode);
         area code is set in launch
@@ -43,37 +38,15 @@ class Http extends \Magento\Framework\App\Http
         $helperDebugger = $this->_objectManager->create('\SalesIgniter\Debugger\Helper\Data')
         $jsonHandler = new SirentJsonResponseHandler($helperDebugger);
         */
-        //$jsonHandler = new SirentJsonResponseHandler();
-        //$jsonHandler = new \Whoops\Handler\JsonResponseHandler();
-        //$jsonHandler->addTraceToOutput(true);
-        //$jsonHandler->setJsonApi(true);
-        //  $this->run->pushHandler($jsonHandler);
-        //}
+
         $returned = parent::launch();
 
-        //if (!Debugger::isEnabled()) {
-        /*Debugger::$scream = true;
-        Debugger::$logSeverity = E_NOTICE | E_WARNING;
-        Debugger::$strictMode = true;
-        Debugger::$showBar = false;
-        Debugger::$maxLength = 3000;
-        Debugger::getFireLogger()->maxLength = 3000;
-        Debugger::enable(Debugger::DEVELOPMENT);
-        //}
-
-        if ($this->_request->getParam('debugMessage') && $this->_request->getParam('debugMessage') !== '') {
-            $helperDebugger = $this->_objectManager->create('\SalesIgniter\Debugger\Helper\Data');
-            $helperDebugger->debug($this->_request->getParam('debugMessage'));
-            $this->_request->setParam('debugMessage', '');
-        }
-        */
-        // $this->run->register();
         return $returned;
     }
 
     public function catchException(Bootstrap $bootstrap, \Exception $exception)
     {
-        if ($bootstrap->isDeveloperMode()) {
+        if (class_exists('\SalesIgniter\Debugger\Helper\Data') && \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data')->isEnabled()) {
             if (\Whoops\Util\Misc::isAjaxRequest()) {
                 $this->writeToLogFile($exception);
             } else {
@@ -89,12 +62,14 @@ class Http extends \Magento\Framework\App\Http
      */
     public function writeToLogFile(\Exception $exception)
     {
-        $this->run->writeToOutput(false);
-        $this->run->allowQuit(false);
-        $returnMessage = $this->run->handleException($exception);
-        /** @var \SalesIgniter\Debugger\Helper\Data $helperDebugger */
-        $helperDebugger = \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data');
-        $url = $helperDebugger->dfFileWrite(DirectoryList::MEDIA, 'errors/dieerror.html', $returnMessage);
-        die('<data>Whoops! There was an error.</data>;;;' . $url);
+        if (class_exists('\SalesIgniter\Debugger\Helper\Data') && \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data')->isEnabled()) {
+            $this->run->writeToOutput(false);
+            $this->run->allowQuit(false);
+            $returnMessage = $this->run->handleException($exception);
+            /** @var \SalesIgniter\Debugger\Helper\Data $helperDebugger */
+            $helperDebugger = \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data');
+            $url = $helperDebugger->dfFileWrite(DirectoryList::MEDIA, 'errors/dieerror.html', $returnMessage);
+            die('<data>Whoops! There was an error.</data>;;;' . $url);
+        }
     }
 }

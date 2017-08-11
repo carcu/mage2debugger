@@ -40,7 +40,7 @@ class ResponsePlugin
      */
     public function beforeSendResponse(ResponseInterface $response)
     {
-        $debuggerPanel = '<div id="debuggerPanel" class="debuggerAccordion">' . \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data')->getDataAsHtml() . '</div>';
+        /*$debuggerPanel = '<div id="debuggerPanel" class="debuggerAccordion">' . \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data')->getDataAsHtml() . '</div>';
         $content = (string)$response->getBody();
 
         $pos = strripos($content, '</body>');
@@ -51,6 +51,6 @@ class ResponsePlugin
         $content = substr($content, 0, $pos) . $debuggerPanel . substr($content, $pos);
 
         // Update the response content
-        $response->setBody($content);
+        $response->setBody($content);*/
     }
 }

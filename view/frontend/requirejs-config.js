@@ -6,7 +6,7 @@
 var config = {
     map: {
         '*': {
-            //'css': 'SalesIgniter_Debugger/js/css',
+            'cssd': 'SalesIgniter_Debugger/js/css',
             'sirentdebug': 'SalesIgniter_Debugger/js/sirentdebug'
             //'sirentdebug': 'SalesIgniter_Debugger/js/sirentdebug.widget'
         }

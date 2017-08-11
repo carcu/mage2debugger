@@ -6,7 +6,8 @@
 var config = {
     map: {
         '*': {
-            'sirentdebug': 'SalesIgniter_Debugger/js/jquery.sirentdebug'
+            'cssd': 'SalesIgniter_Debugger/js/css',
+            'sirentdebug': 'SalesIgniter_Debugger/js/sirentdebug'
         }
     }
 };

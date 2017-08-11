@@ -25,7 +25,6 @@
     /**
      * debuggerpanel dialog
      */
-    console.log('here-sirent');
 
     var widthN = 500;//$(window).width();
     var heightN = 800;//$(window).height();

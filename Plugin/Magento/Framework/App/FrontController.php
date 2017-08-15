@@ -22,7 +22,7 @@ class FrontController
         \Magento\Framework\App\RequestInterface $request
     ) {
         if (!\Whoops\Util\Misc::isAjaxRequest()) {
-            \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data')->resetData();
+            //\Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data')->resetData();
         }
     }
 }

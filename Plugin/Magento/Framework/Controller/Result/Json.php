@@ -22,9 +22,10 @@ class Json
     ) {
         if (\Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data')->isEnabled()) {
             $debuggerHtml = \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data')->getDataAsHtml();
+
             if ($debuggerHtml !== '') {
                 if (is_array($data)) {
-                    if ($this->arrayIsAssoc($data)) {
+                    if ($this->arrayIsAssoc($data) || count($data) === 0) {
                         $data['debuggerData'] = $debuggerHtml;
                     } else {
                         $data[]['debuggerData'] = $debuggerHtml;

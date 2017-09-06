@@ -78,7 +78,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         } finally {
             $file->close();
         }
-        return $this->storeManager->getStore()->getBaseUrl() . $filesystem->getUri($directory) . '/' . $relativeFileName;
+
+        return $this->storeManager->getStore()->getBaseUrl().$filesystem->getUri($directory).'/'.$relativeFileName;
     }
 
     public function isEnabled()
@@ -100,19 +101,19 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if (in_array($type, $recursiveType)) {
             // If type is object, try to get properties by Reflection.
             if ($type == 'object') {
-                $output = get_class($data) . ' ' . ucfirst($type);
+                $output = get_class($data).' '.ucfirst($type);
                 $ref = new \ReflectionObject($data);
                 $properties = $ref->getProperties();
                 foreach ($properties as $property) {
                     $property->setAccessible(true);
                     $pType = $property->getName();
                     if ($property->isProtected()) {
-                        $pType .= ":protected";
+                        $pType .= ':protected';
                     } elseif ($property->isPrivate()) {
-                        $pType .= ":" . $property->class . ":private";
+                        $pType .= ':'.$property->class.':private';
                     }
                     if ($property->isStatic()) {
-                        $pType .= ":static";
+                        $pType .= ':static';
                     }
                     $elements[$pType] = $property->getValue($data);
                 }
@@ -129,11 +130,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                     $output .= "\n{$tabs}[{$key}] => ";
                     // Increment level
                     $tabLevel = $tabLevel + 2;
-                    $innerLevel++;
+                    ++$innerLevel;
                     $output .= in_array(gettype($element), $recursiveType) ? self::printRLevel($element, $level) : $element;
                     // Decrement level
                     $tabLevel = $tabLevel - 2;
-                    $innerLevel--;
+                    --$innerLevel;
                 }
                 $output .= "\n{$quoteTabes})\n";
             } else {
@@ -142,6 +143,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         } else {
             $output = $data;
         }
+
         return $output;
     }
 
@@ -161,7 +163,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                     $reflection = isset($item['class'])
                         ? new \ReflectionMethod($item['class'], $item['function'])
                         : new \ReflectionFunction($item['function']);
-                    if ($reflection->isInternal() || preg_match('#\s@tracySkipLocation\s#', (string)$reflection->getDocComment())) {
+                    if ($reflection->isInternal() || preg_match('#\s@tracySkipLocation\s#', (string) $reflection->getDocComment())) {
                         $location = $item;
                         continue;
                     }
@@ -174,6 +176,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if (isset($location['file'], $location['line']) && is_file($location['file'])) {
             $lines = file($location['file']);
             $line = $lines[$location['line'] - 1];
+
             return [
                 $location['file'],
                 $location['line'],
@@ -183,14 +186,15 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
-     * Returns true if current scope is backend
+     * Returns true if current scope is backend.
      *
      * @return bool
+     *
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function isBackend()
     {
-        return ($this->appState->getAreaCode() === 'adminhtml');
+        return $this->appState->getAreaCode() === 'adminhtml';
     }
 
     private function getSession()
@@ -198,6 +202,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if ($this->isBackend()) {
             return $this->backendSession;
         }
+
         return $this->catalogSession;
     }
 
@@ -211,7 +216,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
             list($file, $line, $code) = $this->findLocation();
             if ($context === null) {
-                $context = 'Debug: ' . count($debuggerData) . ' File: ' . $file;
+                $context = 'Debug: '.count($debuggerData).' File: '.$file;
             }
             $templateHelper = new \Whoops\Util\TemplateHelper();
             $debuggerData[$context][] = $templateHelper->dump($var);
@@ -236,23 +241,25 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 $html = '';
                 foreach ($debuggerData as $context => $content) {
                     //array_reverse($content);
-                    $html .= '<h3>' . $context . '</h3>';
+                    $html .= '<h3>'.$context.'</h3>';
                     if (count($content) > 1) {
                         $html .= '<div class="debuggerAccordionsSub">';
                     }
                     foreach ($content as $count => $value) {
                         if (count($content) > 1) {
-                            $html .= '<h3>Debug: ' . $count . '</h3>';
+                            $html .= '<h3>Debug: '.$count.'</h3>';
                         }
-                        $html .= '<div>' . $value . '</div>';
+                        $html .= '<div>'.$value.'</div>';
                     }
                     if (count($content) > 1) {
                         $html .= '</div>';
                     }
                 }
+
                 return $html;
             }
         }
+
         return '';
     }
 

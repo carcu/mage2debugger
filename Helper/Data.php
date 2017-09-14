@@ -28,6 +28,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     private $appState;
 
     private $isEnabled;
+    /**
+     * @var \Magento\Framework\App\Http
+     */
+    private $http;
 
     /**
      * Data constructor.
@@ -35,6 +39,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      * @param \Magento\Framework\App\Helper\Context      $context
      * @param \Magento\Backend\App\ConfigInterface       $backendConfig
      * @param \Magento\Catalog\Model\Session             $catalogSession
+     * @param \Magento\Framework\App\Http                $http
      * @param \Magento\Backend\Model\Session             $backendSession
      * @param \Magento\Framework\App\State               $appState
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
@@ -44,6 +49,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Framework\App\Helper\Context $context,
         \Magento\Backend\App\ConfigInterface $backendConfig,
         \Magento\Catalog\Model\Session $catalogSession,
+        \SalesIgniter\Debugger\Framework\Http $http,
         \Magento\Backend\Model\Session $backendSession,
         \Magento\Framework\App\State $appState,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
@@ -55,7 +61,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->storeManager = $storeManager;
         $this->backendSession = $backendSession;
         $this->appState = $appState;
-        $this->isEnabled = true;
+        $this->isEnabled = false;
+        $this->http = $http;
     }
 
     public function dfFileWrite($directory, $relativeFileName, $contents)
@@ -85,6 +92,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function isEnabled()
     {
         return $this->isEnabled;
+    }
+
+    public function isEnabledForAjax()
+    {
+        return $this->isEnabled && false;
     }
 
     private static function printRLevel($data, $level = 5)
@@ -229,6 +241,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if ($this->isEnabled()) {
             $_GET['pData'] = $var;
             throw new \ErrorException('some error');
+        }
+    }
+
+    public function sDump($var)
+    {
+        if ($this->isEnabled()) {
+            $templateHelper = new \Whoops\Util\TemplateHelper();
+            $this->http->writeOnlyToLogFile($templateHelper->dump($var));
         }
     }
 

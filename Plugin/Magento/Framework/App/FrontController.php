@@ -8,12 +8,11 @@ class FrontController
     //function aroundMETHOD($subject, $procede, $arg1, $arg2){return $proceed($arg1, $arg2);}
     //function afterMETHOD($subject, $result){return $result;}
     /**
-     * Set current store for admin area
+     * Set current store for admin area.
      *
      * @param \Magento\Framework\App\FrontController  $subject
      * @param \Magento\Framework\App\RequestInterface $request
      *
-     * @return void
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */

@@ -9,6 +9,7 @@
                     try {
                         var data = JSON.parse(data);
                         var placeKey = false;
+
                         for (var i = 0; i < data.length; i++) {
                             if (data[i]['debuggerData'] && data[i]['debuggerData'].length) {
                                 placeKey = i;
@@ -28,6 +29,7 @@
                         return data;
                     }
                 }
+                return data;
             }
         });
         $.ajaxPrefilter(/*dataTypes, */ function global_ajaxPrefilter(options, originalOptions, jqXHR) {
@@ -38,6 +40,7 @@
                 //console.log("Data: " + JSON.stringify(data));
                 //console.groupEnd();
                 var debuggerHtml = false;
+
                 if ($('body').data('debuggerData')) {
                     debuggerHtml = $('body').data('debuggerData');
                 }

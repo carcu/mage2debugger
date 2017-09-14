@@ -25,36 +25,37 @@
     /**
      * debuggerpanel dialog
      */
-
-    var widthN = 500;//$(window).width();
-    var heightN = 800;//$(window).height();
-    var dialogN = $("<div id='dialogN'></div>").append($('#debuggerPanel')).appendTo("body").dialog({
-        autoOpen: true,
-        modal: false,
-        resizable: false,
-        dialogClass: 'debuggerdialog',
-        // classes: {
-        //   "ui-dialog": "debuggerdialog"
-        //},
-        width: widthN,
-        height: heightN,
-        close: function () {
-            $(this).dialog('destroy');
-        }
-    });
-    dialogN.dialog("option", "position", {my: "right bottom", at: "right+200 bottom+100", of: "body"});
-    $('.debuggerAccordion').accordion({
-        heightStyle: 'fill',
-        classes: {
-            "ui-accordion": "debuggerAccordion"
-        }
-    });
-    $('.debuggerAccordionsSub').accordion({
-        heightStyle: 'content',
-        classes: {
-            "ui-accordion": "debuggerAccordion"
-        }
-    });
+    if ($('#debuggerPanel').length) {
+        var widthN = 500;//$(window).width();
+        var heightN = 800;//$(window).height();
+        var dialogN = $("<div id='dialogN'></div>").append($('#debuggerPanel')).appendTo("body").dialog({
+            autoOpen: true,
+            modal: false,
+            resizable: false,
+            dialogClass: 'debuggerdialog',
+            // classes: {
+            //   "ui-dialog": "debuggerdialog"
+            //},
+            width: widthN,
+            height: heightN,
+            close: function () {
+                $(this).dialog('destroy');
+            }
+        });
+        dialogN.dialog("option", "position", {my: "right bottom", at: "right+200 bottom+100", of: "body"});
+        $('.debuggerAccordion').accordion({
+            heightStyle: 'fill',
+            classes: {
+                "ui-accordion": "debuggerAccordion"
+            }
+        });
+        $('.debuggerAccordionsSub').accordion({
+            heightStyle: 'content',
+            classes: {
+                "ui-accordion": "debuggerAccordion"
+            }
+        });
+    }
 
 
 }));

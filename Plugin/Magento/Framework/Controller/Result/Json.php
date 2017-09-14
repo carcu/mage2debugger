@@ -13,16 +13,15 @@ class Json
             }
         }
         return false;*/
-        return (array_values($array) !== $array);
+        return array_values($array) !== $array;
     }
 
     public function beforeSetData(
         \Magento\Framework\Controller\Result\Json $subject,
         $data, $cycleCheck = false, $options = []
     ) {
-        if (\Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data')->isEnabled()) {
+        if (\Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data')->isEnabledForAjax()) {
             $debuggerHtml = \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data')->getDataAsHtml();
-
             if ($debuggerHtml !== '') {
                 if (is_array($data)) {
                     if ($this->arrayIsAssoc($data) || count($data) === 0) {
@@ -35,6 +34,7 @@ class Json
                 }
             }
         }
+
         return [$data];
     }
 

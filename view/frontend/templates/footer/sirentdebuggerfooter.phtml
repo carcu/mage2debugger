@@ -1,8 +1,11 @@
 <?php /** @var $block \SalesIgniter\Debugger\Block\Footer\SirentDebuggerFooter */ ?>
-<div id="debuggerPanel"
-     class="debuggerAccordion">
-    <?php echo $block->getDebuggerData(); ?>
-</div>
+<?php $debuggerData = $block->getDebuggerData(); ?>
+<?php if ($debuggerData): ?>
+    <div id="debuggerPanel"
+         class="debuggerAccordion">
+        <?php echo $debuggerData; ?>
+    </div>
+<?php endif; ?>
 <script>
     require(["jquery", "sirentdebug"], function ($) {
     });

@@ -61,7 +61,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->storeManager = $storeManager;
         $this->backendSession = $backendSession;
         $this->appState = $appState;
-        $this->isEnabled = false;
+        $this->isEnabled = true;
         $this->http = $http;
     }
 

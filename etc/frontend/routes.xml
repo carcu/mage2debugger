@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * routes
+ *
+ * @copyright Copyright © 2017 SalesIgniter. All rights reserved.
+ * @author    cristian@itwebexperts.com
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:App/etc/routes.xsd">
+    <router id="standard">
+        <route id="salesigniter_debugger" frontName="salesigniter_debugger">
+            <module name="SalesIgniter_Debugger"/>
+        </route>
+    </router>
+</config>

@@ -20,8 +20,29 @@ class FrontController
         \Magento\Framework\App\FrontController $subject,
         \Magento\Framework\App\RequestInterface $request
     ) {
-        if (!\Whoops\Util\Misc::isAjaxRequest()) {
-            //\Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data')->resetData();
+        //if (!\Whoops\Util\Misc::isAjaxRequest()) {
+
+        if (!\Whoops\Util\Misc::isAjaxRequest() && strpos($request->getPathInfo(), 'showlogsnav/index') === false) {
+            \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data')->resetData();
+            \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data')->resetDataFiles();
         }
+        //}
     }
+
+    /*
+     * Perform response postprocessing
+     *
+     * @param FrontControllerInterface          $subject
+     * @param ResponseInterface|ResultInterface $result
+     *
+     * @return ResponseHttp|ResultInterface
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    /* public function afterDispatch(FrontControllerInterface $subject, $result)
+     {
+         $result->setHeader('X-Magento-Debug', 1);
+         return $result;
+     }
+    */
 }

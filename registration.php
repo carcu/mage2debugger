@@ -1,5 +1,7 @@
 <?php
 
-use \Magento\Framework\Component\ComponentRegistrar;
-
-ComponentRegistrar::register(ComponentRegistrar::MODULE, 'SalesIgniter_Debugger', __DIR__);
+\Magento\Framework\Component\ComponentRegistrar::register(
+    \Magento\Framework\Component\ComponentRegistrar::MODULE,
+    'SalesIgniter_Debugger',
+    __DIR__
+);

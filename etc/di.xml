@@ -1,40 +1,18 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference for="\Magento\Framework\App\Http" type="SalesIgniter\Debugger\Framework\Http"/>
+    <preference for="\Magento\Framework\Console\Cli" type="SalesIgniter\Debugger\Framework\Cli"/>
     <type name="Magento\Framework\View\Element\Template">
         <plugin name="SirentDebuggerCatalogTemplate" type="SalesIgniter\Debugger\Plugin\Catalog\Template" sortOrder="90"/>
     </type>
-    <type name="Magento\Framework\Controller\Result\Json">
+    <!--<type name="Magento\Framework\Controller\Result\Json">
         <plugin name="salesigniter_debugger_magento_framework_controller_result_json" type="SalesIgniter\Debugger\Plugin\Magento\Framework\Controller\Result\Json"/>
-    </type>
+    </type>-->
     <type name="Magento\Framework\App\FrontController">
         <plugin name="salesigniter_debugger_magento_framework_app_frontcontroller" type="SalesIgniter\Debugger\Plugin\Magento\Framework\App\FrontController"/>
     </type>
-    <!--<type name="Magento\Framework\Session\SessionManager">
-                <plugin name="sirentSession" type="SalesIgniter\Debugger\Plugin\SessionPlugin" sortOrder="98"/>
-        </type>-->
-    <!--<preference for="Whoops\Handler\HandlerInterface" type="Whoops\Handler\PrettyPageHandler"/>-->
-    <!-- http plugin does not work, seems plugin are instantiated after
-    <type name="Magento\Framework\App\Http">
-                                <plugin name="sirentHttpPlugin" type="SalesIgniter\Debugger\Plugin\HttpApp" sortOrder="98"/>
-                </type>-->
-    <!--<type name="Magento\Framework\Session\SessionManager">
-                                <plugin name="sirent_session_checker" type="SalesIgniter\Debugger\Plugin\SessionChecker"/>
-                </type>
-                <type name="\Magento\Framework\View\Result\Layout">
-                                <plugin name="sirent_before_render_result" type="SalesIgniter\Debugger\Plugin\ResultLayout"/>
-                </type>-->
-    <!--<preference for="\Magento\Framework\Exception\LocalizedException" type="SalesIgniter\Debugger\Framework\LocalizedException"/>-->
-    <!--<type name="Magento\Framework\App\ResponseInterface">
-                <plugin name="sirentResponse" type="SalesIgniter\Debugger\Framework\ResponsePlugin" sortOrder="99"/>
-        </type>-->
-    <!--
-     <type name="Magento\Framework\App\ResponseInterface">
-        <plugin name="sirentResponse" type="SalesIgniter\Debugger\Framework\ResponsePlugin" sortOrder="99"/>
-    </type>-->
-    <!--for events.xml in case sometime I will need
-    <event name="controller_front_send_response_before">
-        <observer name="salesigniter_controller_front_send_response_before" instance="SalesIgniter\Debugger\Observer\ObserverHttp"/>
-    </event>-->
+    <type name="Magento\Framework\Message\Manager">
+        <plugin name="debugger_manager" type="SalesIgniter\Debugger\Plugin\Magento\Framework\Message\Manager"/>
+    </type>
 
 </config>

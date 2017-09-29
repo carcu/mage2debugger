@@ -1,0 +1,42 @@
+<?php
+/**
+ * showlogsnav.
+ *
+ * @copyright Copyright © 2017 SalesIgniter. All rights reserved
+ * @author    cristian@itwebexperts.com
+ */
+?>
+<?php
+/** @var \SalesIgniter\Debugger\Block\Showlogsnav $block */
+?>
+<style type="text/css">
+    .salesigniter-debugger-showlogsnav-index .page-wrapper {
+        height: 100%;
+    }
+
+    .salesigniter-debugger-showlogsnav-index #maincontent {
+        height: 100%;
+    }
+    .salesigniter-debugger-showlogsnav-index .columns {
+        height: 100%;
+    }
+    .salesigniter-debugger-showlogsnav-index .column.main {
+        height: 100%;
+    }
+</style>
+<div style="width:100%;height: 100%;">
+    <div id="sitree" style="float: left;width: 30%;height:100%;">
+        <?php echo $block->getTree(); ?>
+    </div>
+    <div id="sicontent" style="float: left;width:70%;height:100%;">
+        <iframe style="width:100%;height:100%;"></iframe>
+    </div>
+    <div style="clear: both;"></div>
+</div>
+
+
+
+
+
+
+

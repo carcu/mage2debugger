@@ -20,13 +20,10 @@ class FrontController
         \Magento\Framework\App\FrontController $subject,
         \Magento\Framework\App\RequestInterface $request
     ) {
-        //if (!\Whoops\Util\Misc::isAjaxRequest()) {
-
         if (!\Whoops\Util\Misc::isAjaxRequest() && strpos($request->getPathInfo(), 'showlogsnav/index') === false) {
-            \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data')->resetData();
-            \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data')->resetDataFiles();
+                \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data')->resetData();
+                \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data')->resetDataFiles();
         }
-        //}
     }
 
     /*

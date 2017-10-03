@@ -42,10 +42,13 @@ class LocalizedExceptionMessageFactory implements ExceptionMessageFactoryInterfa
     public function createMessage(\Exception $exception, $type = MessageInterface::TYPE_ERROR)
     {
         if ($exception instanceof LocalizedException) {
-            //@debug
-            if (class_exists('\SalesIgniter\Debugger\Helper\Data')) {
-                $myDebugger = \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data');
-                $myDebugger->addDataWithTrace($exception);
+            try {
+                //@debug
+                if (class_exists('\SalesIgniter\Debugger\Helper\Data')) {
+                    $myDebugger = \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data');
+                    $myDebugger->addDataWithTrace($exception);
+                }
+            } catch (\Exception $e) {
             }
             //@end-debug
             return $this->messageFactory->create($type)

@@ -300,12 +300,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function resetData()
     {
-        if ($this->isEnabled()) {
+        if ($this->isEnabled() && $this->getSession()->isSessionExists() && $this->getSession()->getSessionId() && $this->getSession()->getDebugerData()) {
             $this->getSession()->unsDebuggerData();
         }
     }
 
-    private static function printRLevel($data, $level = 5)
+    public static function printRLevel($data, $level = 5)
     {
         static $innerLevel = 1;
         static $tabLevel = 1;

@@ -5,9 +5,6 @@
     <type name="Magento\Framework\View\Element\Template">
         <plugin name="SirentDebuggerCatalogTemplate" type="SalesIgniter\Debugger\Plugin\Catalog\Template" sortOrder="90"/>
     </type>
-    <!--<type name="Magento\Framework\Controller\Result\Json">
-        <plugin name="salesigniter_debugger_magento_framework_controller_result_json" type="SalesIgniter\Debugger\Plugin\Magento\Framework\Controller\Result\Json"/>
-    </type>-->
     <type name="Magento\Framework\App\FrontController">
         <plugin name="salesigniter_debugger_magento_framework_app_frontcontroller" type="SalesIgniter\Debugger\Plugin\Magento\Framework\App\FrontController"/>
     </type>

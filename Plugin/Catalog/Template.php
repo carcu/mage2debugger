@@ -64,61 +64,6 @@ class Template
     }
 
     /**
-     * Function which add the pricing blocks and styles.
-     *
-     * @param \QueryPath\DOMQuery $dom
-     *
-     * @return string
-     */
-    private function _addSirentDebugger(&$dom)
-    {
-        /** @var \SalesIgniter\Debugger\Block\Footer\SirentDebugger $block */
-        $block = $this->layout->createBlock('\SalesIgniter\Debugger\Block\Footer\SirentDebugger');
-        $html = $block->toHtml();
-        $html = html5qp($html);
-        $dom->append($html);
-    }
-
-    /**
-     * Function which add the pricing blocks and styles.
-     *
-     * @param \QueryPath\DOMQuery $dom
-     *
-     * @return string
-     */
-    private function _addSirentDebuggerFooter(&$dom)
-    {
-        /** @var \SalesIgniter\Debugger\Block\Footer\SirentDebugger $block */
-        $block = $this->layout->createBlock('\SalesIgniter\Debugger\Block\Footer\SirentDebuggerFooter');
-        $html = $block->toHtml();
-        $html = html5qp($html);
-        $dom->append($html);
-    }
-
-    /**
-     * Function to add pricing and stylesheets.
-     *
-     * @param $subject
-     * @param $domHtml
-     * @param $isChanged
-     *
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    private function _addDebuggerAssets($subject, &$domHtml, &$isChanged)
-    {
-        if ($subject->getNameInLayout() === 'head.components' /*|| $subject->getNameInLayout() === 'copyright'*/) {
-            $this->_addSirentDebugger($domHtml);
-            //$this->_appendFrontendGeneralStyles($domHtml);
-            $isChanged = true;
-        }
-        if ($subject->getNameInLayout() === 'copyright' /*|| $subject->getNameInLayout() === 'copyright'*/) {
-            $this->_addSirentDebuggerFooter($domHtml);
-            //$this->_appendFrontendGeneralStyles($domHtml);
-            $isChanged = true;
-        }
-    }
-
-    /**
      * Retrieve block view from file (template).
      *
      * @param \Magento\Framework\View\Element\Template $subject
@@ -138,11 +83,12 @@ class Template
         $fileName
     ) {
         $html = $proceed($fileName);
+//@debug
         if (class_exists('\SalesIgniter\Debugger\Helper\Data')) {
             $myDebugger = \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data');
-            $myDebugger->addData($subject->getNameInLayout(), 'template');
+            $myDebugger->addData('ddd', 'template');
         }
-
+//@end-debug
         if ($this->isPaymentResponse()) {
             return $html;
         }
@@ -152,9 +98,6 @@ class Template
             $originalHtml = $html;
             $originalHtml5 = $domHtml->html();
             $originalHtml5 = substr($originalHtml5, 0, strlen($originalHtml5) - 8);
-            //I have modified the way it shows the rrors. It writes everything to folder
-            //and it reads from there
-            //$this->_addDebuggerAssets($subject, $domHtml, $isChanged);
             if ($subject->getNameInLayout() === 'salesigniter.debugger.showlogsnav') {
                 $this->_addLogviewer($domHtml, $isChanged);
             }
@@ -165,7 +108,6 @@ class Template
             $htmlString = str_replace($originalHtml5, '', $htmlString);
 
             return $originalHtml.$this->removeHtmlTags($htmlString);
-            // return substr($htmlString, 5, strlen($htmlString) - 11);
         } else {
             return $html;
         }

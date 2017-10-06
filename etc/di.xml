@@ -5,9 +5,11 @@
     <type name="Magento\Framework\View\Element\Template">
         <plugin name="SirentDebuggerCatalogTemplate" type="SalesIgniter\Debugger\Plugin\Catalog\Template" sortOrder="90"/>
     </type>
-    <type name="Magento\Framework\App\FrontController">
+    <!-- Session is initied after fromcontroller and sometimes gives errors-->
+    <!--<type name="Magento\Framework\App\FrontController">
         <plugin name="salesigniter_debugger_magento_framework_app_frontcontroller" type="SalesIgniter\Debugger\Plugin\Magento\Framework\App\FrontController"/>
-    </type>
+    </type>-->
+
     <type name="Magento\Framework\Message\Manager">
         <plugin name="debugger_manager" type="SalesIgniter\Debugger\Plugin\Magento\Framework\Message\Manager"/>
     </type>

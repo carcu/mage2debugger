@@ -42,12 +42,10 @@ class Manager
         MessageInterface $message,
         $group = null
     ) {
-        //@debug
         if (class_exists('\SalesIgniter\Debugger\Helper\Data')) {
             $myDebugger = \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data');
             $myDebugger->addDataWithTrace($message, 'aroundaddMessage');
         }
-        //@end-debug
         $returnValue = $proceed($message, $group);
 
         return $returnValue;

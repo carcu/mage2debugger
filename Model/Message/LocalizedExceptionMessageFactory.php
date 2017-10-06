@@ -43,14 +43,12 @@ class LocalizedExceptionMessageFactory implements ExceptionMessageFactoryInterfa
     {
         if ($exception instanceof LocalizedException) {
             try {
-                //@debug
                 if (class_exists('\SalesIgniter\Debugger\Helper\Data')) {
                     $myDebugger = \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data');
                     $myDebugger->addDataWithTrace($exception);
                 }
             } catch (\Exception $e) {
             }
-            //@end-debug
             return $this->messageFactory->create($type)
                 ->setText($exception->getMessage());
         }

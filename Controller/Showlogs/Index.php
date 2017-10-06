@@ -1,11 +1,11 @@
 <?php
 /**
- * Index
+ * Index.
  *
- * @copyright Copyright © 2017 SalesIgniter. All rights reserved.
+ * @copyright Copyright © 2017 SalesIgniter. All rights reserved
  * @author    cristian@itwebexperts.com
  */
- 
+
 namespace SalesIgniter\Debugger\Controller\Showlogs;
 
 use Magento\Framework\App\Action\Action;
@@ -20,7 +20,7 @@ class Index extends Action
     protected $pageFactory;
 
     /**
-     * @param Context $context
+     * @param Context     $context
      * @param PageFactory $pageFactory
      */
     public function __construct(Context $context, PageFactory $pageFactory)
@@ -30,14 +30,25 @@ class Index extends Action
     }
 
     /**
-     * Index Action
-     * 
+     * Index Action.
+     *
      * @return \Magento\Framework\View\Result\Page
      */
     public function execute()
     {
         /** @var \Magento\Framework\View\Result\Page $resultPage */
         $resultPage = $this->pageFactory->create();
+        $helperDebugger = \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data');
+        if ($this->getRequest()->getParam('delete')) {
+            $helperDebugger->resetData();
+            $helperDebugger->resetDataFiles();
+        }elseif ($this->getRequest()->getParam('deleteerror')) {
+        $helperDebugger->resetDataFiles(1);
+    } else {
+            $helperDebugger->getDataAsHtmlToFile();
+            $helperDebugger->resetData();
+        }
+
         return $resultPage;
     }
 }

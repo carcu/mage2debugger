@@ -29,12 +29,10 @@ class Http extends \Magento\Framework\App\Http
 
     public function customExceptionHandler($exception)
     {
-        //@debug
         if (class_exists('\SalesIgniter\Debugger\Helper\Data')) {
             $myDebugger = \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data');
             $myDebugger->addDataWithTrace($exception);
         }
-        //@end-debug
     }
 
     public function launch()

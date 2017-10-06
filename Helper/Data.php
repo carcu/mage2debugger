@@ -67,7 +67,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->http = $http;
     }
 
-    public function deleteFiles($directory)
+    public function deleteFiles($directory, $type = 0)
     {
         /** @var \Magento\Framework\App\ObjectManager $om */
         $om = \Magento\Framework\App\ObjectManager::getInstance();
@@ -75,8 +75,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $filesystem = $om->get('Magento\Framework\Filesystem');
         /** @var \Magento\Framework\Filesystem\Directory\WriteInterface|\Magento\Framework\Filesystem\Directory\Write $writer */
         $writer = $filesystem->getDirectoryWrite($directory);
-        $writer->delete('sidebugger1/logs/debug');
-        //$writer->delete('sidebugger1/logs/errors');
+        if ($type === 0) {
+            $writer->delete('sidebugger1/logs/debug');
+        } else {
+            $writer->delete('sidebugger1/logs/errors');
+        }
     }
 
     public function dfFileWrite($directory, $relativeFileName, $contents, $modeType = 0)
@@ -109,7 +112,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function isEnabled()
     {
-        return $this->isEnabled;
+        return $this->isEnabled && $this->getSession()->isSessionExists() && $this->getSession()->getSessionId();
     }
 
     public function isEnabledForAjax()
@@ -129,7 +132,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $this->appState->getAreaCode() === 'adminhtml';
     }
 
-    private function getSession()
+    public function getSession()
     {
         if ($this->isBackend()) {
             return $this->backendSession;
@@ -177,12 +180,25 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
     }
 
-    public function resetDataFiles()
+    public function resetDataFiles($type = 0)
     {
-        $this->deleteFiles(DirectoryList::MEDIA);
+        $this->deleteFiles(DirectoryList::MEDIA, $type);
     }
 
-    public function addData($var, $context = null)
+    public function generateDebugReport($definedVars)
+    {
+        $ignoreList = ['HTTP_POST_VARS', 'HTTP_GET_VARS',
+            'HTTP_COOKIE_VARS', 'HTTP_SERVER_VARS',
+            'HTTP_ENV_VARS', 'HTTP_SESSION_VARS',
+            '_ENV', 'PHPSESSID', 'SESS_DBUSER',
+            'SESS_DBPASS', 'HTTP_COOKIE', 'myDebugger', 'this', ];
+
+        $realDefinedVars = array_keys($definedVars);
+
+        return array_diff($realDefinedVars, $ignoreList);
+    }
+
+    public function addData($var, $context = 'general', $depth = 6, $depthInside = 6)
     {
         if ($this->isEnabled()) {
             $debuggerData = [];
@@ -194,8 +210,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             if ($context === null) {
                 $context = 'general';
             }
-            $templateHelper = new \Whoops\Util\TemplateHelper();
-            $debuggerData[$context][] = 'File: '.$file.'<br/> Time:'.date('Y-m-d H:i:s').'<br/>'.$templateHelper->dump($var);
+            //$templateHelper = new \Whoops\Util\TemplateHelper();
+            $debuggerData[$context][] = 'File: '.$file.':'.$line.'<br/> Time:'.date('Y-m-d H:i:s').'<br/>'.dump_r($var, true, true, $depth, $depthInside);
             $this->getSession()->setDebuggerData(serialize($debuggerData));
         }
     }
@@ -300,7 +316,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function resetData()
     {
-        if ($this->isEnabled() && $this->getSession()->isSessionExists() && $this->getSession()->getSessionId() && $this->getSession()->getDebugerData()) {
+        if ($this->isEnabled() /*&& $this->getSession()->isSessionExists() && $this->getSession()->getSessionId() && $this->getSession()->getDebugerData()*/) {
             $this->getSession()->unsDebuggerData();
         }
     }

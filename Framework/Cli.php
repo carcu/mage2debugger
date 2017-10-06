@@ -21,12 +21,32 @@ class Cli extends \Magento\Framework\Console\Cli
         $request = \Magento\Framework\App\ObjectManager::getInstance()->get('\Magento\Framework\App\RequestInterface');
         if ($request->getPathInfo() !== '/salesigniter_debugger/showlogsnav/index/') {
             $helperDebugger = \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data');
-            $helperDebugger->getDataAsHtmlToFile();
+            $this->getDataAsHtmlToFile($helperDebugger);
         }
         $lasterror = error_get_last();
         if (in_array($lasterror['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR, E_RECOVERABLE_ERROR, E_CORE_WARNING, E_COMPILE_WARNING, E_PARSE])) {
             $this->writeToLogFile(new \ErrorException($lasterror['message'], $lasterror['type'], 1, $lasterror['file'], $lasterror['line']));
         }
+    }
+
+    public function getDataAsHtmlToFile($helperDebugger)
+    {
+        if ($helperDebugger->isEnabled()) {
+            if ($helperDebugger->getSession()->getDebuggerData()) {
+                $debuggerData = unserialize($helperDebugger->getSession()->getDebuggerData());
+                foreach ($debuggerData as $context => $content) {
+                    $html = '';
+                    foreach ($content as $count => $value) {
+                        $html .= '<div>'.$value.'</div>';
+                    }
+                    $this->writeOnlyToLogFile($html, $context);
+                }
+
+                return $html;
+            }
+        }
+
+        return '';
     }
 
     /**

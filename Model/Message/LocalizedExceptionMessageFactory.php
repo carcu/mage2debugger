@@ -10,6 +10,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Message\MessageInterface;
 use Magento\Framework\Message\Factory;
 use Magento\Framework\Exception\RuntimeException;
+
 if (class_exists(\Magento\Framework\Message\ExceptionMessageFactoryInterface::class)) {
     class LocalizedExceptionMessageFactory implements \Magento\Framework\Message\ExceptionMessageFactoryInterface
     {
@@ -41,13 +42,6 @@ if (class_exists(\Magento\Framework\Message\ExceptionMessageFactoryInterface::cl
         public function createMessage(\Exception $exception, $type = MessageInterface::TYPE_ERROR)
         {
             if ($exception instanceof LocalizedException) {
-                try {
-                    if (class_exists('\SalesIgniter\Debugger\Helper\Data')) {
-                        $myDebugger = \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data');
-                        $myDebugger->addDataWithTrace($exception);
-                    }
-                } catch (\Exception $e) {
-                }
                 return $this->messageFactory->create($type)
                     ->setText($exception->getMessage());
             }
@@ -56,7 +50,7 @@ if (class_exists(\Magento\Framework\Message\ExceptionMessageFactoryInterface::cl
             );
         }
     }
-} else{
+} else {
     class LocalizedExceptionMessageFactory
     {
         /**
@@ -87,13 +81,6 @@ if (class_exists(\Magento\Framework\Message\ExceptionMessageFactoryInterface::cl
         public function createMessage(\Exception $exception, $type = MessageInterface::TYPE_ERROR)
         {
             if ($exception instanceof LocalizedException) {
-                try {
-                    if (class_exists('\SalesIgniter\Debugger\Helper\Data')) {
-                        $myDebugger = \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data');
-                        $myDebugger->addDataWithTrace($exception);
-                    }
-                } catch (\Exception $e) {
-                }
                 return $this->messageFactory->create($type)
                     ->setText($exception->getMessage());
             }

@@ -31,8 +31,24 @@
     }
 </style>
 <div style="width:100%;height: 100%;">
-    <div id="sitree" style="float: left;width: 30%;height:100%;">
-        <?php echo $block->getTree(); ?>
+    <div id="sitreeAll" style="float: left;width: 30%;height:100%;">
+        <div style="display: block"><a target="_blank"
+                                       href="<?php echo $block->getUrl('salesigniter_debugger/showlogs/index') ?>">Put
+                Ajax Data into log and reset</a></div>
+        <div style="display: block"><a target="_blank"
+                                       href="<?php echo $block->getUrl('admin/salesigniter_debugger/showlogs/index') ?>">Put
+                Ajax Admin Data into log and reset</a></div>
+        <div style="display: block"><a target="_blank"
+                                       href="<?php echo $block->getUrl('salesigniter_debugger/showlogs/index/delete/1') ?>">Delete
+                debug</a></div>
+        <div style="display: block"><a target="_blank"
+                                       href="<?php echo $block->getUrl('admin/salesigniter_debugger/showlogs/index/delete/1') ?>">Delete
+                Admin
+                debug</a></div>
+        <div style="display: block"><a target="_blank"
+                                       href="<?php echo $block->getUrl('salesigniter_debugger/showlogs/index/deleteerror/1') ?>">Delete
+                errors</a></div>
+        <div id="sitree" style="display: block;"><?php echo $block->getTree(); ?></div>
     </div>
     <div id="sicontent" style="float: left;width:70%;height:100%;">
         <iframe style="width:100%;height:100%;"></iframe>

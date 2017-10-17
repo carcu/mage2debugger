@@ -1,6 +1,7 @@
 <?php
 /**
- * Copyright © 2015 CedCommerce. All rights reserved.
+ * Copyright © 2017 SalesIgniter. All rights reserved.
+ * See https://rentalbookingsoftware.com/license.html for license details.
  */
 
 namespace SalesIgniter\Debugger\Helper;
@@ -63,7 +64,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $this->storeManager = $storeManager;
         $this->backendSession = $backendSession;
         $this->appState = $appState;
-        $this->isEnabled = false;
+        $this->isEnabled = true;
         $this->http = $http;
     }
 
@@ -74,11 +75,42 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         /** @var \Magento\Framework\Filesystem $filesystem */
         $filesystem = $om->get('Magento\Framework\Filesystem');
         /** @var \Magento\Framework\Filesystem\Directory\WriteInterface|\Magento\Framework\Filesystem\Directory\Write $writer */
-        $writer = $filesystem->getDirectoryWrite($directory);
+        $writer = $filesystem->getDirectoryWrite(DirectoryList::MEDIA);
         if ($type === 0) {
             $writer->delete('sidebugger1/logs/debug');
-        } else {
+        } elseif ($type === 1) {
+            /* @var \Magento\Framework\Filesystem\Directory\WriteInterface|\Magento\Framework\Filesystem\Directory\Write $writer */
             $writer->delete('sidebugger1/logs/errors');
+
+            /** @var \Magento\Framework\Filesystem\Directory\WriteInterface|\Magento\Framework\Filesystem\Directory\Write $writer */
+            $writer = $filesystem->getDirectoryWrite(DirectoryList::VAR_DIR);
+            $driverFile = $om->get(\Magento\Framework\Filesystem\Driver\File::class);
+            if ($driverFile->isExists($writer->getAbsolutePath().'log/exception.log')) {
+                $driverFile->deleteFile($writer->getAbsolutePath().'log/exception.log');
+            }
+            $writer1 = $filesystem->getDirectoryWrite(DirectoryList::ROOT);
+            if ($driverFile->isExists($writer1->getAbsolutePath().'error_log')) {
+                $driverFile->deleteFile($writer1->getAbsolutePath().'error_log');
+            }
+        } elseif ($type === 2) {
+            $driverFile = $om->get(\Magento\Framework\Filesystem\Driver\File::class);
+            if ($driverFile->isExists($writer->getAbsolutePath().'sidebugger1/logs/debug/exceptions.log.html')) {
+                $driverFile->deleteFile($writer->getAbsolutePath().'sidebugger1/logs/debug/exceptions.log.html');
+            }
+            if ($driverFile->isExists($writer->getAbsolutePath().'sidebugger1/logs/debug/exceptions_log.log.html')) {
+                $driverFile->deleteFile($writer->getAbsolutePath().'sidebugger1/logs/debug/exceptions_log.log.html');
+            }
+            /** @var \Magento\Framework\Filesystem\Directory\WriteInterface|\Magento\Framework\Filesystem\Directory\Write $writer */
+            $writer = $filesystem->getDirectoryWrite(DirectoryList::VAR_DIR);
+            $dir = $writer->getAbsolutePath().'log/';
+            $writer1 = $filesystem->getDirectoryWrite(DirectoryList::ROOT);
+            $dir1 = $writer1->getAbsolutePath();
+            if ($driverFile->isFile($writer->getAbsolutePath().'log/exception.log')) {
+                $this->writeOnlyToLogFile(nl2br(file_get_contents($dir.'exception.log')), 'exceptions.log');
+            }
+            if ($driverFile->isFile($writer1->getAbsolutePath().'error_log')) {
+                $this->writeOnlyToLogFile(nl2br(file_get_contents($dir1.'error_log')), 'exceptions_log.log');
+            }
         }
     }
 
@@ -152,7 +184,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                     foreach ($content as $count => $value) {
                         $html .= '<div>'.$value.'</div>';
                     }
-                    $this->http->writeOnlyToLogFile($html, $context);
+                    $this->writeOnlyToLogFile($html, $context);
                 }
 
                 return $html;
@@ -165,19 +197,66 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function addDataWithTrace($var, $context = null)
     {
         if ($var !== null && $this->isEnabled()) {
-            if ($var instanceof \Exception) {
-                $this->http->writeToLogFile($var);
-            } else {
+
+                $retMes = \DebugBacktraceHtml::getDump(\DebugBacktraceHtml::getBacktraces(1, 320));
                 try {
-                    $functionName = 'isDebug_1__isContext_'.$context.'_a';
-                    $$functionName->variable($var);
-                    //$functionName([$var]);
-                    //$var->method();
-                } catch (\Exception $exception) {
-                    $this->http->writeToLogFile($exception);
+                    /** @var \DomDocument $doc */
+                    $doc = new \DOMDocument();
+                    @$doc->loadHTML($retMes);
+
+                    $xpath = new \DOMXPath($doc);
+                    /** @var \DOMElement $anchor */
+                    foreach ($doc->getElementsByTagName('a') as $anchor) {
+                        if ($anchor->hasAttribute('title')) {
+                            $lineArr = explode('#', $anchor->textContent);
+                            if (isset($lineArr[1])) {
+                                $anchor->textContent = $anchor->getAttribute('title').'#'.$lineArr[1];
+                            } else {
+                                $anchor->textContent = $anchor->getAttribute('title');
+                            }
+                        }
+                    }
+// loop all <tr> element.
+                    foreach ($xpath->query('//tr') as $tr) {
+                        $tds = $tr->getElementsByTagName('td');
+                        // get total <td> in this <tr>
+                        $total_item = $tds->length;
+
+                        // loop to all <td> and check.
+                        for ($i = 0; $i <= ($total_item - 2); ++$i) {
+                            // get table cell value.
+                            $table_cell_value = $tds->item($i)->nodeValue;
+                            //preg_match('/\[\[charge_(\d+)\]\]/', $table_cell_value, $charge_id);
+                            //echo $table_cell_value.'----';
+                            //if (is_array($charge_id) && array_key_exists(1, $charge_id) && $charge_id[1] == 13) {
+                            if (strpos($table_cell_value, '/Interception/') !== false || strpos($table_cell_value, '/generation/') !== false) {
+                                //echo 'hereeeeeeeeeeeeeee';
+                                $tr->parentNode->removeChild($tr);
+                                break;
+                            }
+
+                            //}
+                            unset($table_cell_value);
+                        }
+
+                        unset($tds, $total_item);
+                    }
+
+                    //foreach ($doc->getElementsByTagName('p')->item(0)->childNodes as $childNode) {
+                    //  echo $doc->saveHTML($childNode);
+                    //}
+
+                    //echo $doc->saveHTML();
+                    //die();
+                    $retMes = preg_replace('~<(?:!DOCTYPE|/?(?:html|body))[^>]*>\s*~i', '', $doc->saveHTML());
+                } catch (\Exception $e) {
+                    $retMes = $e->getMessage();
                 }
+
+                $retMes = 'Message: '.dump_r($var, true, true, 6, 6).'<br/>Stack: '.$retMes;
+
+                $this->writeOnlyToLogFile($retMes, $context);
             }
-        }
     }
 
     public function resetDataFiles($type = 0)
@@ -228,7 +307,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         if ($this->isEnabled()) {
             $templateHelper = new \Whoops\Util\TemplateHelper();
-            $this->http->writeOnlyToLogFile($templateHelper->dump($var), 'old');
+            $this->writeOnlyToLogFile($templateHelper->dump($var), 'old');
         }
     }
 
@@ -261,6 +340,17 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         return '';
+    }
+
+    /**
+     * @param        $message
+     * @param string $context
+     */
+    public function writeOnlyToLogFile($message, $context = '')
+    {
+        if ($this->isEnabled()) {
+            $this->dfFileWrite(DirectoryList::MEDIA, 'sidebugger1/logs/debug/'.$context.'.html', $message, 1);
+        }
     }
 
     /**
@@ -317,7 +407,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function resetData()
     {
         if ($this->isEnabled() /*&& $this->getSession()->isSessionExists() && $this->getSession()->getSessionId() && $this->getSession()->getDebugerData()*/) {
-            $this->getSession()->unsDebuggerData();
+            if (is_object($this->backendSession)) {
+                $this->backendSession->unsDebuggerData();
+            }
+            if (is_object($this->catalogSession)) {
+                $this->catalogSession->unsDebuggerData();
+            }
         }
     }
 

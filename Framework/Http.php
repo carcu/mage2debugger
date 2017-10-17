@@ -20,10 +20,11 @@ class Http extends \Magento\Framework\App\Http
             $helperDebugger->getDataAsHtmlToFile();
         }
         $lasterror = error_get_last();
+
         if (in_array($lasterror['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR, E_RECOVERABLE_ERROR, E_CORE_WARNING, E_COMPILE_WARNING, E_PARSE])) {
-            //$this->writeToLogFile(new \ErrorException($lasterror['message'], $lasterror['type'], 1, $lasterror['file'], $lasterror['line']));
+            /** @var \SalesIgniter\Debugger\Helper\Data $helperDebugger */
             $helperDebugger = \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data');
-            $helperDebugger->addDataWithTrace($lasterror['message'], 'fatalerror');
+            $helperDebugger->addDataWithTrace($lasterror, 'fatalerror');
         }
     }
 
@@ -31,12 +32,14 @@ class Http extends \Magento\Framework\App\Http
     {
         if (class_exists('\SalesIgniter\Debugger\Helper\Data')) {
             $myDebugger = \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data');
-            $myDebugger->addDataWithTrace($exception);
+            $myDebugger->addDataWithTrace($exception, 'customexception');
         }
     }
 
     public function launch()
     {
+        //error_reporting(E_ALL);
+        //ini_set('display_errors', 1);
         register_shutdown_function([&$this, 'onShutdown']);
         //set_exception_handler(array($this, 'customExceptionHandler'));
         $returned = parent::launch();
@@ -57,6 +60,9 @@ class Http extends \Magento\Framework\App\Http
     public function catchException(Bootstrap $bootstrap, \Exception $exception)
     {
         if (class_exists('\SalesIgniter\Debugger\Helper\Data') && \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data')->isEnabled()) {
+            /** @var \SalesIgniter\Debugger\Helper\Data $helperDebugger */
+            $helperDebugger = \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data');
+            //$helperDebugger->addDataWithTrace($exception, 'fatalerror');
             $this->writeToLogFile($exception);
         }
 
@@ -95,19 +101,6 @@ class Http extends \Magento\Framework\App\Http
                 }
                 $helperDebugger->dfFileWrite(DirectoryList::MEDIA, 'sidebugger1/logs/errors/'.$context.date('Y-m-d-H-i').'-'.time().'.html', $returnMessage);
             }
-        }
-    }
-
-    /**
-     * @param        $message
-     * @param string $context
-     */
-    public function writeOnlyToLogFile($message, $context = '')
-    {
-        if (class_exists('\SalesIgniter\Debugger\Helper\Data') && \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data')->isEnabled()) {
-            /** @var \SalesIgniter\Debugger\Helper\Data $helperDebugger */
-            $helperDebugger = \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data');
-            $helperDebugger->dfFileWrite(DirectoryList::MEDIA, 'sidebugger1/logs/debug/'.$context.'.html', $message, 1);
         }
     }
 }

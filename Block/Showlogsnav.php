@@ -45,6 +45,12 @@ class Showlogsnav extends Template
 
     public function getTree()
     {
+        if (class_exists('\SalesIgniter\Debugger\Helper\Data')) {
+            /** @var \SalesIgniter\Debugger\Helper\Data $myDebugger */
+            $myDebugger = \Magento\Framework\App\ObjectManager::getInstance()->get('\SalesIgniter\Debugger\Helper\Data');
+            $myDebugger->deleteFiles(null, 2);
+        }
+
         $mediaDirectory = \Magento\Framework\App\ObjectManager::getInstance()->get(Filesystem::class)
             ->getDirectoryRead(DirectoryList::MEDIA);
         $dir = $mediaDirectory->getAbsolutePath().'sidebugger1/logs/';
@@ -101,5 +107,14 @@ class Showlogsnav extends Template
         }
 
         return $return;
+    }
+
+    public function getAdminUrl()
+    {
+        /** @var \Magento\Framework\App\ObjectManager $om */
+        $om = \Magento\Framework\App\ObjectManager::getInstance();
+        /** @var \Magento\Backend\Model\UrlInterface $backendUrl */
+        $backendUrl = $om->get(\Magento\Backend\Model\UrlInterface::class);
+        $backendUrl->getUrl('salesigniter_debugger/showlogs/index');
     }
 }

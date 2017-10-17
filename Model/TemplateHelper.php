@@ -202,7 +202,11 @@ class TemplateHelper
             $output = $this->htmlDumperOutput->getOutput();
             $this->htmlDumperOutput->clear();
             */
-            $output = dump_r($value, true, true, 3, 3);
+            try {
+                $output = dump_r($value, true, true, 3, 3);
+            } catch (\Exception $e) {
+                $output = $e->getMessage();
+            }
 
             return $output;
         }

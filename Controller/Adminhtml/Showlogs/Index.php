@@ -1,12 +1,10 @@
 <?php
 /**
- * Index.
- *
- * @copyright Copyright © 2017 SalesIgniter. All rights reserved
- * @author    cristian@itwebexperts.com
+ * Copyright (c) 2017 Sales Igniter. All Rights Reserved.
+ * Written by Cristian Arcu <cristian@itwebexperts.com>.
  */
 
-namespace SalesIgniter\Debugger\Controller\Showlogs;
+namespace SalesIgniter\Debugger\Controller\Adminhtml\Showlogs;
 
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\View\Result\PageFactory;
@@ -49,6 +47,8 @@ class Index extends Action
             $helperDebugger->getDataAsHtmlToFile();
             $helperDebugger->resetData();
         }
+        echo 'here is reseted';
+        die();
 
         return $resultPage;
     }

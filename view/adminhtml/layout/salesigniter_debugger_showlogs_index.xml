@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright © 2017 SalesIgniter. All rights reserved.
-  ~ See https://rentalbookingsoftware.com/license.html for license details.
+  ~ Copyright (c) 2017 Sales Igniter. All Rights Reserved.
+  ~ Written by Cristian Arcu <cristian@itwebexperts.com>
   ~
   -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceContainer name="content">
-            <block class="SalesIgniter\Debugger\Block\Showlogs" name="salesigniter.debugger.showlogs" />
+            <block class="SalesIgniter\Debugger\Block\Adminhtml\Showlogs" name="salesigniter.debugger.showlogs" />
         </referenceContainer>
     </body>
 </page>
